@@ -3,6 +3,9 @@ import logging
 import sys
 import platform
 import argparse
+import csv
+import os
+from datetime import datetime
 
 from bleak import BleakScanner, BleakClient
 
@@ -10,6 +13,27 @@ from bleak import BleakScanner, BleakClient
 parser = argparse.ArgumentParser(description="Bluetooth Heart Rate Monitor")
 parser.add_argument("-d", "--device", type=str, help="Target device address")
 args = parser.parse_args()
+
+# If there is not data folder, create it
+try:
+    os.mkdir("data")
+except FileExistsError:
+    pass
+
+# Create a CSV file to store the data with the current timestamp
+timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+csv_filename = f"data/heartrate_data_{timestamp}.csv"
+
+# Print the header
+print("\n=== Starting heart rate monitor ===")
+
+# Print the CSV filename
+print(f"The data will be written to: {csv_filename}")
+
+# Open the CSV file and write the header
+with open(csv_filename, mode='w', newline='') as file:
+    csv_writer = csv.writer(file)
+    csv_writer.writerow(["Timestamp", "Heart Rate"])
 
 # Set the target device address if provided
 if args.device:
@@ -64,17 +88,6 @@ class DetailedHeartRateMonitor:
             self.is_connected = True
             print("✅ Successfully connected to the heart rate monitor!")
             
-            # Discover services
-            print("\nDiscovering services...")
-            services = await self.client.get_services()
-            
-            print("\n=== Available Services ===")
-            for service in services:
-                print(f"Service UUID: {service.uuid}")
-                print("Characteristics:")
-                for char in service.characteristics:
-                    print(f"  - {char.uuid}")
-            
             return True
         
         except Exception as e:
@@ -105,6 +118,11 @@ class DetailedHeartRateMonitor:
                     # 8-bit heart rate value
                     heart_rate = data[1]
                 
+                # Write the data to the CSV file
+                with open(csv_filename, mode='a', newline='') as file:
+                    csv_writer = csv.writer(file)
+                    csv_writer.writerow([datetime.now().strftime("%Y-%m-%d %H:%M:%S"), heart_rate])
+
                 # Print the heart rate, replacing the old output
                 sys.stdout.write(f"\r💓 Heart Rate: {heart_rate} bpm")
                 sys.stdout.flush()
