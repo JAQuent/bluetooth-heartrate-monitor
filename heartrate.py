@@ -94,15 +94,8 @@ class DetailedHeartRateMonitor:
             Process and log heart rate data with detailed breakdown.
             """
             try:
-                # Prepare the output string
-                output = "\r=== Heart Rate Data Received ===\n"
-                
-                # Raw data logging
-                output += f"Raw Data: {data.hex()}\n"
-                
                 # Flags interpretation
                 flags = data[0]
-                output += f"Flags: {bin(flags)}\n"
                 
                 # Heart rate calculation
                 if flags & 0x01:
@@ -112,23 +105,10 @@ class DetailedHeartRateMonitor:
                     # 8-bit heart rate value
                     heart_rate = data[1]
                 
-                output += f"💓 Heart Rate: {heart_rate} bpm\n"
-                
-                # Optional: Additional data interpretation
-                if len(data) > 2:
-                    output += "Additional Data Present:\n"
-                    if flags & 0x02:  # Energy expended present
-                        energy = int.from_bytes(data[3:5], byteorder='little')
-                        output += f"Energy Expended: {energy} kJ\n"
-                    
-                    if flags & 0x04:  # RR-Interval present
-                        rr_intervals = data[5:]
-                        rr_intervals_list = [int.from_bytes(rr_intervals[i:i+2], byteorder='little')/1024 for i in range(0, len(rr_intervals), 2)]
-                        output += f"RR Intervals: {rr_intervals_list}\n"
-                
-                # Print the output, replacing the old output
-                sys.stdout.write(output)
+                # Print the heart rate, replacing the old output
+                sys.stdout.write(f"\r💓 Heart Rate: {heart_rate} bpm")
                 sys.stdout.flush()
+                
             
             except Exception as e:
                 print(f"Error processing heart rate data: {e}")
