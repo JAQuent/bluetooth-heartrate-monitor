@@ -43,3 +43,9 @@ sudo systemctl restart bluetooth
 ```
 
 Also sometimes, the connection fails or the device is not found. I usually fix this by trying multiple times and restarting bluetooth until it works. Bluetooh devices always feel flaky to me.
+
+# Future features
+- Add a way to stop monitoring that doesn't cause an error
+- Add possibility to add time stamps to allow analysing sections (pressing space bar)
+- Add additional information to the title of the graph like duration of workout, max and avg. HR
+- Add config files to allow calculation of calories burned via this formula https://www.omnicalculator.com/sports/calories-burned-by-heart-rate
