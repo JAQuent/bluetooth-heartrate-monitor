@@ -6,12 +6,14 @@ import argparse
 import csv
 import os
 from datetime import datetime
+import matplotlib.pyplot as plt
 
 from bleak import BleakScanner, BleakClient
 
 # Parse command line arguments
 parser = argparse.ArgumentParser(description="Bluetooth Heart Rate Monitor")
 parser.add_argument("-d", "--device", type=str, help="Target device address")
+parser.add_argument("-g", "--graph", action="store_true", help="Display live heart rate graph")
 args = parser.parse_args()
 
 # If there is not data folder, create it
@@ -42,8 +44,20 @@ if args.device:
     print(f"Target Device Address: {TARGET_DEVICE_ADDRESS}")
 
 # Heart Rate Service and Characteristic UUIDs
-HEART_RATE_SERVICE_UUID = "0000180d-0000-1000-8000-00805f9b34fb"
 HEART_RATE_MEASUREMENT_CHARACTERISTIC_UUID = "00002a37-0000-1000-8000-00805f9b34fb"
+
+# If --graph is provided, display the live heart rate graph
+if args.graph:
+    # Print using graph
+    print("Initializing live heart rate graph...")
+
+    # Initialize the plot
+    plt.ion()  # Turn on interactive mode
+    fig, ax = plt.subplots()
+    x, y = [], []
+    line, = ax.plot(x, y)
+    ax.set_xlabel('Sample')
+    ax.set_ylabel('Heart Rate (bpm)')
 
 class DetailedHeartRateMonitor:
     def __init__(self, target_address=TARGET_DEVICE_ADDRESS):
@@ -126,6 +140,20 @@ class DetailedHeartRateMonitor:
                 # Print the heart rate, replacing the old output
                 sys.stdout.write(f"\r💓 Heart Rate: {heart_rate} bpm")
                 sys.stdout.flush()
+
+                # If --graph is provided, update the plot
+                if args.graph:
+                    # Update the data
+                    x.append(len(x))
+                    y.append(heart_rate)
+                    
+                    # Update the plot
+                    line.set_xdata(x)
+                    line.set_ydata(y)
+                    ax.relim()
+                    ax.autoscale_view()  # Autoscale the view
+                    plt.draw()
+                    plt.pause(0.01)  # Pause to allow the plot to update
                 
             
             except Exception as e:
