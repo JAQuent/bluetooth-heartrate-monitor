@@ -2,11 +2,20 @@ import asyncio
 import logging
 import sys
 import platform
+import argparse
 
 from bleak import BleakScanner, BleakClient
 
-# Specific device address
-TARGET_DEVICE_ADDRESS = ""
+# Parse command line arguments
+parser = argparse.ArgumentParser(description="Bluetooth Heart Rate Monitor")
+parser.add_argument("-d", "--device", type=str, help="Target device address")
+args = parser.parse_args()
+
+# Set the target device address if provided
+if args.device:
+    TARGET_DEVICE_ADDRESS = args.device
+    # Print the target device address
+    print(f"Target Device Address: {TARGET_DEVICE_ADDRESS}")
 
 # Heart Rate Service and Characteristic UUIDs
 HEART_RATE_SERVICE_UUID = "0000180d-0000-1000-8000-00805f9b34fb"
@@ -33,7 +42,6 @@ class DetailedHeartRateMonitor:
             for device in devices:
                 print(f"Device Name: {device.name}")
                 print(f"Device Address: {device.address}")
-                print(f"Manufacturer Data: {device.metadata.get('manufacturer_data', 'N/A')}")
                 print("---")
             
             # Find target device
@@ -51,7 +59,7 @@ class DetailedHeartRateMonitor:
             # Attempt connection
             print("\nAttempting to connect...")
             self.client = BleakClient(self.target_address)
-            await self.client.connect()
+            await self.client.connect(timeout=30.0)  # Time out after 30 seconds
             
             self.is_connected = True
             print("✅ Successfully connected to the heart rate monitor!")
@@ -86,13 +94,15 @@ class DetailedHeartRateMonitor:
             Process and log heart rate data with detailed breakdown.
             """
             try:
-                print("\n=== Heart Rate Data Received ===")
+                # Prepare the output string
+                output = "\r=== Heart Rate Data Received ===\n"
+                
                 # Raw data logging
-                print(f"Raw Data: {data.hex()}")
+                output += f"Raw Data: {data.hex()}\n"
                 
                 # Flags interpretation
                 flags = data[0]
-                print(f"Flags: {bin(flags)}")
+                output += f"Flags: {bin(flags)}\n"
                 
                 # Heart rate calculation
                 if flags & 0x01:
@@ -102,18 +112,23 @@ class DetailedHeartRateMonitor:
                     # 8-bit heart rate value
                     heart_rate = data[1]
                 
-                print(f"💓 Heart Rate: {heart_rate} bpm")
+                output += f"💓 Heart Rate: {heart_rate} bpm\n"
                 
                 # Optional: Additional data interpretation
                 if len(data) > 2:
-                    print("Additional Data Present:")
+                    output += "Additional Data Present:\n"
                     if flags & 0x02:  # Energy expended present
                         energy = int.from_bytes(data[3:5], byteorder='little')
-                        print(f"Energy Expended: {energy} kJ")
+                        output += f"Energy Expended: {energy} kJ\n"
                     
                     if flags & 0x04:  # RR-Interval present
                         rr_intervals = data[5:]
-                        print(f"RR Intervals: {[int.from_bytes(rr_intervals[i:i+2], byteorder='little')/1024 for i in range(0, len(rr_intervals), 2)]}")
+                        rr_intervals_list = [int.from_bytes(rr_intervals[i:i+2], byteorder='little')/1024 for i in range(0, len(rr_intervals), 2)]
+                        output += f"RR Intervals: {rr_intervals_list}\n"
+                
+                # Print the output, replacing the old output
+                sys.stdout.write(output)
+                sys.stdout.flush()
             
             except Exception as e:
                 print(f"Error processing heart rate data: {e}")
@@ -125,8 +140,9 @@ class DetailedHeartRateMonitor:
                 heart_rate_handler
             )
             
-            # Keep monitoring for 60 seconds
-            await asyncio.sleep(500)
+            # Keep monitoring until user stops
+            while True:
+                await asyncio.sleep(1)
         
         except Exception as e:
             print(f"Monitoring Error: {e}")
