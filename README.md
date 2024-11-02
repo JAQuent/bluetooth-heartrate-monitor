@@ -1,8 +1,8 @@
 # bluetooth-heartrate-monitor
-A small command-line python-based app for monitoring, logging and visualising heart rate.
+A small command-line python-based app for monitoring, logging and visualising heart rate made to run in Ubuntu. 
 
 # Notes
-I built this app only for myself while heavily relying on LLMs like ChatGPT, Copilot and Claude. I did this because I tried to find such an app but coudln't. Currently, it's only tested/developed for Ubuntu (22.04) using a *COOSPO* device. It might work for other cases/devices but I haven't tried anything else. If someone wants to extend the support, I am happy to collaborate. Over time I will add more functionality that I would like this app to have. 
+I built this app only for myself while heavily relying on LLMs like ChatGPT, Copilot and Claude. I did this because I tried to find such an app but coudln't. Currently, it's only tested/developed for Ubuntu (22.04) using a *COOSPO* device. It might also work for other cases/devices but I haven't tried this out. If someone wants to extend the support, I am happy to collaborate. Over time I will add more functionality that I would like this app to have. 
 
 # Installation & prerequisites
 In order for me to run the app, I needed to install the following python packages. 
@@ -16,7 +16,7 @@ I am running this with Python 3.10.12.
 
 # Usage
 
-Here is a screen shot of the working app:
+Here is a screenshot of the working app:
 
 ![Screenshot of working app](example.png)
 
@@ -34,15 +34,15 @@ sudo python3 heartrate.py -d 00:11:22:33:FF:EE # No live graph
 sudo -E python3 heartrate.py -d 00:11:22:33:FF:EE --graph # With live graph
 ```
 
-Additional arguments include `-g` or `--graph` to create live visualisation of the hear rate data. The data will be automatically written to a timestamped .csv file in the data folder, which will be created if it doesn't exist.
+Additional arguments include `-g` or `--graph` to create a live visualisation of the heart rate data. The data will be automatically written to a timestamped .csv file in the data folder, which will be created if it doesn't exist.
 
-Sometimes I ran into issues and I have to restart the bluetooth service on Ubuntu. For this I use:
+Sometimes I run into issues and I have to restart the bluetooth service on Ubuntu or just try multiple times. For this I use:
 
 ```{bash}
 sudo systemctl restart bluetooth
 ```
 
-Also sometimes, the connection fails or the device is not found. I usually fix this by trying multiple times and restarting bluetooth until it works. Bluetooh devices always feel flaky to me.
+Bluetooh devices always feel very flaky to me.
 
 # Future features
 - Add a way to stop monitoring that doesn't cause an error
