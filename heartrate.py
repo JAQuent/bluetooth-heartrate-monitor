@@ -7,7 +7,7 @@ import csv
 import os
 from datetime import datetime
 import matplotlib.pyplot as plt
-from utilities import current_summary
+from utilities import current_summary, load_profile
 
 from bleak import BleakScanner, BleakClient
 
@@ -15,6 +15,7 @@ from bleak import BleakScanner, BleakClient
 parser = argparse.ArgumentParser(description="Bluetooth Heart Rate Monitor")
 parser.add_argument("-d", "--device", type=str, help="Target device address")
 parser.add_argument("-g", "--graph", action="store_true", help="Display live heart rate graph")
+parser.add_argument("-n", "--name", type=str, help="Target device address")
 args = parser.parse_args()
 
 # If there is not data folder, create it
@@ -23,9 +24,26 @@ try:
 except FileExistsError:
     pass
 
+# Load the profile
+if args.name:
+    name = args.name
+    profile = load_profile(name)
+
+    # Calculate exact age based on the DOB
+    dob = datetime.strptime(profile["dob"], "%Y-%m-%d")
+    age = round((datetime.now() - dob).days / 365, 2)
+
+    # Print the profile
+    print(profile)
+    print("\nCalculating age...\n")
+    print(f"Age: {age} years")
+else:
+    name = "default"
+    print("No profile selected...")
+
 # Create a CSV file to store the data with the current timestamp
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-csv_filename = f"data/heartrate_data_{timestamp}.csv"
+csv_filename = f"data/heartrate_data_{name}_{timestamp}.csv"
 
 # Print the header
 print("\n=== Starting heart rate monitor ===")
