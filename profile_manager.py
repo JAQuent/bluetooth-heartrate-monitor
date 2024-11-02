@@ -6,7 +6,7 @@ from datetime import datetime
 parser = argparse.ArgumentParser(description="Profile Manager")
 parser.add_argument("-a", "--add", action="store_true", help="Create a new profile")
 parser.add_argument("-s", "--show", action="store_true", help="Show a  profile")
-parser.add_argument("-n", "--name", type=str, help="Target device address")
+parser.add_argument("-n", "--name", type=str, help="Name of the profile")
 args = parser.parse_args()
 
 # Check if the arguments are compatible
