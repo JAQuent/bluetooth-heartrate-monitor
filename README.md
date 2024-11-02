@@ -47,5 +47,5 @@ Bluetooh devices always feel very flaky to me.
 # Future features
 - Add a way to stop monitoring that doesn't cause an error
 - Add possibility to add time stamps to allow analysing sections (pressing space bar)
-- Add additional information to the title of the graph like duration of workout, max and avg. HR
 - Add config files to allow calculation of calories burned via this formula https://www.omnicalculator.com/sports/calories-burned-by-heart-rate
+- Add way to save figures from the data 
