@@ -1,5 +1,5 @@
 import argparse
-from utilities import profile_set_up, load_profile
+from utilities import profile_set_up, load_profile, calculate_age
 from datetime import datetime
 
 # Parse command line arguments
@@ -24,8 +24,7 @@ if args.show:
     profile = load_profile(args.name)
 
     # Calculate exact age based on the DOB
-    dob = datetime.strptime(profile["dob"], "%Y-%m-%d")
-    age = round((datetime.now() - dob).days / 365, 2)
+    age = calculate_age(profile["dob"])
 
     # Print the profile
     print(profile)

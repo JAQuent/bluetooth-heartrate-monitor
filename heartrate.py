@@ -7,7 +7,7 @@ import csv
 import os
 from datetime import datetime
 import matplotlib.pyplot as plt
-from utilities import current_summary, load_profile
+from utilities import current_summary, load_profile, calculate_age
 
 from bleak import BleakScanner, BleakClient
 
@@ -26,12 +26,14 @@ except FileExistsError:
 
 # Load the profile
 if args.name:
+    print("=== Loading profile ===")
     name = args.name
     profile = load_profile(name)
 
     # Calculate exact age based on the DOB
-    dob = datetime.strptime(profile["dob"], "%Y-%m-%d")
-    age = round((datetime.now() - dob).days / 365, 2)
+    age = calculate_age(profile["dob"])
+    weight = float(profile["weight"])
+    sex = profile["sex"]
 
     # Print the profile
     print(profile)
@@ -39,6 +41,9 @@ if args.name:
     print(f"Age: {age} years")
 else:
     name = "default"
+    age = 0
+    weight = 0
+    sex = "unknown"
     print("No profile selected...")
 
 # Create a CSV file to store the data with the current timestamp
@@ -154,7 +159,7 @@ class DetailedHeartRateMonitor:
                     y.append(heart_rate)
 
                     # Calculate the summary
-                    summary = current_summary(start_time, y)
+                    summary = current_summary(start_time, y, name, age, weight, sex)
 
                     # Add title to the plot
                     ax.set_title(summary)
