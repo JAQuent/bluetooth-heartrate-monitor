@@ -148,5 +148,3 @@ def calculate_calories_burned(age, weight, heart_rate, duration, sex):
         calories_burned = 0
    
     return round(calories_burned, 1) 
-
-    Weight
