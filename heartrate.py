@@ -7,6 +7,7 @@ import csv
 import os
 from datetime import datetime
 import matplotlib.pyplot as plt
+from utilities import current_summary
 
 from bleak import BleakScanner, BleakClient
 
@@ -45,19 +46,6 @@ if args.device:
 
 # Heart Rate Service and Characteristic UUIDs
 HEART_RATE_MEASUREMENT_CHARACTERISTIC_UUID = "00002a37-0000-1000-8000-00805f9b34fb"
-
-# If --graph is provided, display the live heart rate graph
-if args.graph:
-    # Print using graph
-    print("Initializing live heart rate graph...")
-
-    # Initialize the plot
-    plt.ion()  # Turn on interactive mode
-    fig, ax = plt.subplots()
-    x, y = [], []
-    line, = ax.plot(x, y)
-    ax.set_xlabel('Sample')
-    ax.set_ylabel('Heart Rate (bpm)')
 
 class DetailedHeartRateMonitor:
     def __init__(self, target_address=TARGET_DEVICE_ADDRESS):
@@ -146,6 +134,12 @@ class DetailedHeartRateMonitor:
                     # Update the data
                     x.append(len(x))
                     y.append(heart_rate)
+
+                    # Calculate the summary
+                    summary = current_summary(start_time, y)
+
+                    # Add title to the plot
+                    ax.set_title(summary)
                     
                     # Update the plot
                     line.set_xdata(x)
@@ -161,6 +155,22 @@ class DetailedHeartRateMonitor:
         
         try:
             print("\nStarting Heart Rate Monitoring...")
+            # Start monitoring heart rate time stamp
+            start_time = datetime.now()
+
+            # If --graph is provided, display the live heart rate graph
+            if args.graph:
+                # Print using graph
+                print("Initializing live heart rate graph...")
+
+                # Initialize the plot
+                plt.ion()  # Turn on interactive mode
+                fig, ax = plt.subplots()
+                x, y = [], []
+                line, = ax.plot(x, y)
+                ax.set_xlabel('Sample')
+                ax.set_ylabel('Heart Rate (bpm)')
+
             await self.client.start_notify(
                 HEART_RATE_MEASUREMENT_CHARACTERISTIC_UUID, 
                 heart_rate_handler
