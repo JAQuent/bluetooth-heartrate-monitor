@@ -34,7 +34,6 @@ else:
     use_meta = False
 
 # Re-create main plot
-plt.ion()  # Turn on interactive mode
 fig, ax = plt.subplots()
 ax.plot(np.arange(1, df.shape[0] + 1), df["Heart Rate"])
 ax.set_xlabel('Sample')
@@ -42,6 +41,7 @@ ax.set_ylabel('Heart Rate (bpm)')
 ax.relim()
 ax.autoscale_view()  # Autoscale the view
 plt.draw()
+plt.show(block=True)
 
 # Save the plot
-plt.savefig("heart_rate_plot.png")
+plt.savefig("workout_plots/heart_rate_plot.png")
