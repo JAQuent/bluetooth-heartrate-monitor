@@ -9,6 +9,7 @@ In order for me to run the app, I needed to install the following python package
 
 ```{bash}
 sudo pip3 install bleak asyncio argparse matplotlib
+pip3 install pandas matplotlib numpy
 sudo -E pip install --upgrade typing_extensions
 ```
 

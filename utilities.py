@@ -104,14 +104,14 @@ def profile_set_up(name):
     with open(f"configs/{name}.json", "w") as f:
         f.write(new_profile_json)
 
-def load_profile(name):
+def load_profile(path2profile):
     # Check if the profile exists
-    if not os.path.exists(f"configs/{name}.json"):
-        print(f"Error: Profile '{name}' does not exist.")
+    if not os.path.exists(f"{path2profile}"):
+        print(f"Error: Profile '{path2profile}' does not exist.")
         exit()
 
     # Load the profile
-    with open(f"configs/{name}.json", "r") as f:
+    with open(f"{path2profile}", "r") as f:
         profile = json.load(f)
 
     return profile

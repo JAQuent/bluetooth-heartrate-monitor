@@ -20,7 +20,9 @@ if args.add:
 # Show a profile
 if args.show:
     print("Showing requested profile...\n")
-    profile = load_profile(args.name)
+    # Load the profile
+    path2profile = f"configs/{args.name}.json"
+    profile = load_profile(path2profile)
 
     # Calculate exact age based on the DOB
     age = calculate_age(profile["dob"])

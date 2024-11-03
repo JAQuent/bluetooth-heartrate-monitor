@@ -28,7 +28,8 @@ except FileExistsError:
 if args.name:
     print("=== Loading profile ===")
     name = args.name
-    profile = load_profile(name)
+    path2profile = f"configs/{name}.json"
+    profile = load_profile(path2profile)
 
     # Calculate exact age based on the DOB
     age = calculate_age(profile["dob"])
