@@ -77,7 +77,6 @@ else:
     # Create one string with all the information
     summary = f"Duration: {duration_str}, Max HR: {max_hr}, Avg HR: {avg_hr}"
 
-
 ####################################################################
 # Re-create main plot with 1 x 2 layout
 fig, ax = plt.subplots(1,2,figsize=(12,6))
