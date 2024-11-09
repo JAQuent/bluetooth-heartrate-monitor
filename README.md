@@ -49,3 +49,4 @@ Bluetooh devices always feel very flaky to me.
 - Add a way to stop monitoring that doesn't cause an error
 - Add possibility to add time stamps to allow analysing sections (pressing space bar)
 - Add way to save figures from the data 
+- Implement measurements of resting heart rate and heart rate zones (https://www.polar.com/blog/running-heart-rate-zones-basics/)

@@ -36,6 +36,7 @@ def ask_for_profile_input():
     dob = input("Enter your date of birth (YYYY-MM-DD): ")
     weight = input("Enter your weight (kg): ")
     sex = input("Type 'male' or 'female': ")
+    max_hr = input("Enter your maximum heart rate: ")
 
     # Validate the input
     ## Check if DOB is in the correct format
@@ -57,7 +58,14 @@ def ask_for_profile_input():
         print("Please use either 'male' or 'female'")
         exit()
 
-    return dob, weight, sex
+    ## Check if max_hr is a number
+    try:
+        float(max_hr)
+    except ValueError:
+        print("Error: Maximum heart rate should be a number")
+        exit()
+
+    return dob, weight, sex, max_hr
 
 def profile_set_up(name):
     # Print the profile manager
@@ -66,14 +74,15 @@ def profile_set_up(name):
     print(f"Profile name: {name}")
 
     # Get profile input
-    dob, weight, sex = ask_for_profile_input()
+    dob, weight, sex, max_hr = ask_for_profile_input()
 
     # Create a Python object (dict):
     new_profile = {
         "name": name,
         "dob": dob,
         "weight": weight,
-        "sex": sex
+        "sex": sex,
+        "max_hr": max_hr
         }
 
     # Print
@@ -83,12 +92,13 @@ def profile_set_up(name):
     confirm = input("Is the information correct (y/n): ")
     while confirm != "y":
         print("Please re-enter the information:\n\n")
-        dob, weight, sex = ask_for_profile_input()
+        dob, weight, sex, max_hr = ask_for_profile_input()
         x = {
             "name": name,
             "dob": dob,
             "weight": weight,
-            "sex": sex
+            "sex": sex,
+            "max_hr": max_hr
         }
         print(new_profile)
         confirm = input("Is the information correct (y/n): ")
@@ -148,3 +158,22 @@ def calculate_calories_burned(age, weight, heart_rate, duration, sex):
         calories_burned = 0
    
     return round(calories_burned, 1) 
+
+
+def get_heart_rate_zones(max_hr_meta):
+    # Calculate the heart rate zones
+    # Source: https://www.polar.com/blog/running-heart-rate-zones-basics
+    # Zone	    Intensity	Percentage of HRmax
+    # Zone 1	Very light	50–60%
+    # Zone 2	Light	    60–70%
+    # Zone 3	Moderate    70–80%
+    # Zone 4	Hard	    80–90%
+    # Zone 5	Maximum	    90–100%
+    zones  = {
+        "zone1": [0.5 * max_hr_meta, 0.6 * max_hr_meta],
+        "zone2": [0.6 * max_hr_meta, 0.7 * max_hr_meta],
+        "zone3": [0.7 * max_hr_meta, 0.8 * max_hr_meta],
+        "zone4": [0.8 * max_hr_meta, 0.9 * max_hr_meta],
+        "zone5": [0.9 * max_hr_meta, max_hr_meta]
+        }
+    return zones
