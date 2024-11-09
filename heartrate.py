@@ -8,6 +8,7 @@ import os
 from datetime import datetime
 import matplotlib.pyplot as plt
 from utilities import current_summary, load_profile, calculate_age
+import json 
 
 from bleak import BleakScanner, BleakClient
 
@@ -61,6 +62,15 @@ print(f"The data will be written to: {csv_filename}")
 with open(csv_filename, mode='w', newline='') as file:
     csv_writer = csv.writer(file)
     csv_writer.writerow(["Timestamp", "Heart Rate"])
+
+if name != "default":
+    # Strip .csv from the filename
+    meta_data_filename = csv_filename.replace(".csv", "_meta.json")
+
+    # Copy profile to the data folder
+    with open(meta_data_filename, "w") as file:
+        json.dump(profile, file)
+    print(f"Profile saved to {meta_data_filename}")
 
 # Set the target device address if provided
 if args.device:
