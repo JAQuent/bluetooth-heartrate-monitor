@@ -126,5 +126,4 @@ python3 test_sound.py
 This will play a test sound to verify that audio warnings will work during heart rate monitoring.
 
 # Future features
-- Add a way to stop monitoring that doesn't cause an error
-- Add possibility to add time stamps to allow analysing sections (pressing space bar)
+- Add possibility to add time stamps to allow analysing sections (pressing space bar).
