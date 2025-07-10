@@ -70,6 +70,12 @@ sudo -E python3 heartrate.py -d 00:11:22:33:FF:EE --graph --name alex --target 1
 
 The target heart rate is automatically saved to the workout metadata and will be displayed when analyzing the workout later.
 
+### Graceful Shutdown
+The application now supports graceful shutdown to avoid errors and ensure data is properly saved:
+- **Press Enter** in the terminal to stop monitoring and save all data cleanly
+- **Ctrl+C** is also handled gracefully to prevent error messages
+- All data is automatically saved before the program exits
+
 ## Analysing workout
 A workout can be analysed using this command:
 

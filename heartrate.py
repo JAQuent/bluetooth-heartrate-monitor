@@ -6,6 +6,7 @@ import argparse
 import csv
 import os
 import time
+import threading
 from datetime import datetime
 import matplotlib.pyplot as plt
 from utilities import current_summary, load_profile, calculate_age, play_warning_sound
@@ -93,6 +94,19 @@ if args.device:
 
 # Heart Rate Service and Characteristic UUIDs
 HEART_RATE_MEASUREMENT_CHARACTERISTIC_UUID = "00002a37-0000-1000-8000-00805f9b34fb"
+
+# Global flag for graceful shutdown
+shutdown_flag = False
+
+def monitor_input():
+    """Monitor for user input to gracefully shutdown"""
+    global shutdown_flag
+    try:
+        input("Press Enter to stop monitoring and save data...\n")
+        shutdown_flag = True
+    except EOFError:
+        # Handle case where input is not available (like in some environments)
+        pass
 
 class DetailedHeartRateMonitor:
     def __init__(self, target_address=TARGET_DEVICE_ADDRESS):
@@ -244,9 +258,15 @@ class DetailedHeartRateMonitor:
                 heart_rate_handler
             )
             
-            # Keep monitoring until user stops
-            while True:
-                await asyncio.sleep(1)
+            # Start input monitoring thread
+            input_thread = threading.Thread(target=monitor_input, daemon=True)
+            input_thread.start()
+            
+            # Keep monitoring until user stops or shutdown flag is set
+            while not shutdown_flag:
+                await asyncio.sleep(0.1)  # Reduced sleep time for more responsive shutdown
+                
+            print("\n✅ Stopping monitoring gracefully...")
         
         except Exception as e:
             print(f"Monitoring Error: {e}")
@@ -255,15 +275,18 @@ class DetailedHeartRateMonitor:
 
     async def stop_monitoring(self):
         """
-        Stop heart rate monitoring and disconnect.
+        Stop heart rate monitoring and disconnect gracefully.
         """
         if self.client and self.is_connected:
             try:
                 await self.client.stop_notify(HEART_RATE_MEASUREMENT_CHARACTERISTIC_UUID)
                 await self.client.disconnect()
-                print("\n✅ Disconnected from heart rate monitor")
+                self.is_connected = False
+                print("✅ Disconnected from heart rate monitor")
             except Exception as e:
-                print(f"Disconnection Error: {e}")
+                print(f"⚠️  Disconnection warning: {e}")
+        else:
+            print("✅ No active connection to disconnect")
 
 async def main():
     # Configure logging
@@ -281,10 +304,16 @@ async def main():
             await hrm.monitor_heart_rate()
     
     except KeyboardInterrupt:
-        print("\nMonitoring stopped by user.")
+        print("\n⚠️  Keyboard interrupt received, stopping gracefully...")
+        global shutdown_flag
+        shutdown_flag = True
+    
+    except Exception as e:
+        print(f"\n❌ Unexpected error: {e}")
     
     finally:
         await hrm.stop_monitoring()
+        print("💾 Data saved successfully. Program terminated.")
 
 if __name__ == "__main__":
     if platform.system() == "Linux" and sys.platform != "darwin":
