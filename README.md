@@ -2,7 +2,7 @@
 A small command-line python-based app for monitoring, logging and visualising heart rate made to run in Ubuntu. 
 
 # Notes
-I built this app only for myself while heavily relying on LLMs like ChatGPT, Copilot and Claude. I did this because I tried to find such an app but coudln't. Currently, it's only tested/developed for Ubuntu (22.04) using a *COOSPO* device. It might also work for other cases/devices but I haven't tried this out. If someone wants to extend the support, I am happy to collaborate. Over time I will add more functionality if I missing something. 
+I built this app only for myself while heavily relying on LLMs like ChatGPT, Copilot and Claude. I did this because I tried to find such an app but coudln't find anything satisfactory that works. Currently, it's only tested/developed for Ubuntu (22.04) using a *COOSPO* device. It might also work for other OS/devices but I haven't tried any. If someone wants to extend the support, I am happy to collaborate. Over time I will probably add more functionality if I feel something is missing.
 
 # Installation & prerequisites
 In order for me to run the app, I needed to install the following python packages. 
