@@ -1,6 +1,8 @@
 from datetime import datetime
 import json 
 import os
+import subprocess
+import sys
 
 def current_summary (start_time, y, name, age, weight, sex):
     # Get current time 
@@ -177,3 +179,28 @@ def get_heart_rate_zones(max_hr_meta):
         "zone5": [0.9 * max_hr_meta, max_hr_meta]
         }
     return zones
+
+def play_warning_sound():
+    """
+    Play a warning sound based on the operating system in the background
+    """
+    try:
+        if sys.platform == "linux" or sys.platform == "linux2":
+            # Use speaker-test for a reliable beep on Ubuntu/Linux, run in background
+            subprocess.Popen(['speaker-test', '-t', 'sine', '-f', '800', '-l', '1', '-c', '1'], 
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                         
+        elif sys.platform == "darwin":  # macOS
+            subprocess.Popen(['afplay', '/System/Library/Sounds/Glass.aiff'], 
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        elif sys.platform == "win32":  # Windows
+            import winsound
+            # Windows winsound.Beep is already non-blocking
+            winsound.Beep(1000, 500)  # 1000 Hz for 500ms
+        else:
+            # Fallback: system bell
+            print('\a', end='', flush=True)
+            
+    except Exception:
+        # Fallback to system bell if everything else fails
+        print('\a', end='', flush=True)

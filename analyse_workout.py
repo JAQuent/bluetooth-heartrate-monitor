@@ -53,6 +53,9 @@ avg_hr = round(df["Heart Rate"].mean(), 1)
 # Calculate the maximum heart rate
 max_hr = df["Heart Rate"].max()
 
+# Initialize target_hr as None
+target_hr = None
+
 # Calculate the calories burned
 if use_meta:
     with open(json_path, "r") as file:
@@ -61,6 +64,11 @@ if use_meta:
     sex = meta_data["sex"]
     max_hr_meta = float(meta_data["max_hr"])
     name = meta_data["name"]
+    
+    # Get target_hr from workout metadata if available
+    if "target_hr" in meta_data:
+        target_hr = int(meta_data["target_hr"])
+        print(f"Using target HR from workout metadata: {target_hr} bpm")
 
     # Calculate exact age based on the DOB
     age = calculate_age(meta_data["dob"])
@@ -80,7 +88,12 @@ else:
 ####################################################################
 # Re-create main plot with 1 x 2 layout
 fig, ax = plt.subplots(1,2,figsize=(12,6))
-ax[0].plot(np.arange(1, df.shape[0] + 1), df["Heart Rate"])
+ax[0].plot(np.arange(1, df.shape[0] + 1), df["Heart Rate"], color='black')
+
+# Add target HR line if specified
+if target_hr:
+    ax[0].axhline(y=target_hr, color='red', linestyle='--', alpha=0.7)
+
 ax[0].set_xlabel('Sample')
 ax[0].set_ylabel('Heart Rate (bpm)')
 ax[0].set_title(summary)                   

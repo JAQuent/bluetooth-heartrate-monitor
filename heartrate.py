@@ -5,9 +5,10 @@ import platform
 import argparse
 import csv
 import os
+import time
 from datetime import datetime
 import matplotlib.pyplot as plt
-from utilities import current_summary, load_profile, calculate_age
+from utilities import current_summary, load_profile, calculate_age, play_warning_sound
 import json 
 
 from bleak import BleakScanner, BleakClient
@@ -17,6 +18,7 @@ parser = argparse.ArgumentParser(description="Bluetooth Heart Rate Monitor")
 parser.add_argument("-d", "--device", type=str, help="Target device address")
 parser.add_argument("-g", "--graph", action="store_true", help="Display live heart rate graph")
 parser.add_argument("-n", "--name", type=str, help="Target device address")
+parser.add_argument("-t", "--target", type=int, help="Target heart rate (bpm)")
 args = parser.parse_args()
 
 # If there is not data folder, create it
@@ -48,6 +50,11 @@ else:
     sex = "unknown"
     print("No profile selected...")
 
+# Set target heart rate
+target_hr = args.target if args.target else None
+if target_hr:
+    print(f"Target heart rate set to: {target_hr} bpm")
+
 # Create a CSV file to store the data with the current timestamp
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 csv_filename = f"data/heartrate_data_{name}_{timestamp}.csv"
@@ -67,10 +74,16 @@ if name != "default":
     # Strip .csv from the filename
     meta_data_filename = csv_filename.replace(".csv", "_meta.json")
 
-    # Copy profile to the data folder
+    # Copy profile to the data folder and add target_hr if specified
+    workout_metadata = profile.copy()  # Copy the profile data
+    if target_hr:
+        workout_metadata["target_hr"] = target_hr  # Add target HR to workout metadata
+    
     with open(meta_data_filename, "w") as file:
-        json.dump(profile, file)
+        json.dump(workout_metadata, file)
     print(f"Profile saved to {meta_data_filename}")
+    if target_hr:
+        print(f"Target HR {target_hr} bpm saved to workout metadata")
 
 # Set the target device address if provided
 if args.device:
@@ -86,6 +99,7 @@ class DetailedHeartRateMonitor:
         self.target_address = target_address
         self.client = None
         self.is_connected = False
+        self.last_warning_time = 0  # Track last warning sound time
 
     async def scan_and_connect(self):
         """
@@ -161,7 +175,16 @@ class DetailedHeartRateMonitor:
 
                 # Print the heart rate, replacing the old output
                 sys.stdout.write(f"\r💓 Heart Rate: {heart_rate} bpm")
+                if target_hr:
+                    sys.stdout.write(f" (Target: {target_hr} bpm)")
                 sys.stdout.flush()
+
+                # Check if we need to play warning sound (if below target)
+                if target_hr and heart_rate < target_hr:
+                    current_time = time.time()
+                    if current_time - self.last_warning_time >= 5:  # 5 seconds interval
+                        play_warning_sound()
+                        self.last_warning_time = current_time
 
                 # If --graph is provided, update the plot
                 if args.graph:
@@ -174,6 +197,13 @@ class DetailedHeartRateMonitor:
 
                     # Add title to the plot
                     ax.set_title(summary)
+                    
+                    # Update background color based on target HR
+                    if target_hr:
+                        if heart_rate < target_hr:
+                            ax.set_facecolor('#ffcccc')  # Pastel red
+                        else:
+                            ax.set_facecolor('#ccffcc')  # Pastel green
                     
                     # Update the plot
                     line.set_xdata(x)
@@ -201,9 +231,13 @@ class DetailedHeartRateMonitor:
                 plt.ion()  # Turn on interactive mode
                 fig, ax = plt.subplots()
                 x, y = [], []
-                line, = ax.plot(x, y)
+                line, = ax.plot(x, y, color='black')  # Changed to black for better visibility
                 ax.set_xlabel('Sample')
                 ax.set_ylabel('Heart Rate (bpm)')
+                
+                # Add target HR line if specified
+                if target_hr:
+                    ax.axhline(y=target_hr, color='red', linestyle='--', alpha=0.7)
 
             await self.client.start_notify(
                 HEART_RATE_MEASUREMENT_CHARACTERISTIC_UUID, 
