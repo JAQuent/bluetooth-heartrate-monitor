@@ -60,7 +60,6 @@ When using the `--target` parameter, the application provides several training e
   - Pastel red background when current HR is below target
   - Pastel green background when current HR is at or above target
 - **Audio Warnings**: Plays a warning sound every 5 seconds when heart rate is below target
-- **Black Heart Rate Line**: The heart rate line is displayed in black for better visibility against colored backgrounds
 
 ### Example Usage
 ```bash
